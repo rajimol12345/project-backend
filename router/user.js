@@ -1,16 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const bcrypt = require('bcrypt');
 
-// Register route (your existing code)
 router.post('/register', async (req, res) => {
+
+ req.body.password = await  bcrypt.hash(req.body.password,10);
+ req.body.confirmPassword = await bcrypt.hash(req.body.password,10);
+
   const { fullname, email, phone, password, confirmPassword } = req.body;
 
   if (!fullname || !email || !password || !confirmPassword) {
     return res.status(400).json({ error: 'All required fields must be filled' });
   }
+const match = await bcrypt.compare(password, confirmPassword);
 
-  if (password !== confirmPassword) {
+  if (!match) {
     return res.status(400).json({ error: 'Passwords do not match' });
   }
 
@@ -30,8 +35,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login route (added below)
-router.post('/login', async (req, res) => {
+  router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -39,23 +43,34 @@ router.post('/login', async (req, res) => {
   }
 
   try {
-    // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Compare passwords (plaintext for now)
-    if (user.password !== password) {
+  
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Login success
-    res.status(200).json({ message: 'Login successful' });
+    res.status(200).json({ message: 'Login successful',token:user.id});
   } catch (err) {
-    console.error('Error during login:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
- 
+// profile
+router.get('/profile/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error('Profile fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch profile' });
+  }
+});
 module.exports = router;
