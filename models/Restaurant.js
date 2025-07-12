@@ -3,45 +3,36 @@ const mongoose = require('mongoose');
 const RestaurantSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
-    trim: true
+    required: true
   },
   address: {
     type: String,
-    required: true,
-    trim: true
+    required: true
   },
   phone: {
     type: String,
-    required: true,
-    match: /^[0-9]{10,15}$/
+    required: true
   },
   cuisine: {
     type: String,
-    required: true,
-    trim: true
+    required: true
   },
   email: {
     type: String,
-    required: true,
-    lowercase: true,
-    trim: true,
-    match: /^\S+@\S+\.\S+$/
+    required: true
   },
   openingHours: {
     type: String,
-    required: true,
-    trim: true
+    required: true
   },
   rating: {
     type: Number,
+    required: true,
     min: 1,
-    max: 5,
-    default: 4
+    max: 5
   },
   image: {
-    type: String, // base64 or image URL
-    default: ''
+    type: String 
   }
 }, { timestamps: true });
 

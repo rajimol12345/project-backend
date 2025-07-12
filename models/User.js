@@ -20,6 +20,15 @@ const UserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+  },
+  profilePic: {
+    type: String, // base64 image string or URL
+    default: '',
+  },
+  deliveryAddress: {
+    type: String,
+    default: '',
+    trim: true,
   }
 }, { timestamps: true });
 
